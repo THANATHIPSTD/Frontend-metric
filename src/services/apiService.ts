@@ -29,8 +29,15 @@ const apiService = {
     limit: number = 16,
     categoryId?: string,
     title?: string,
+    priceFilter?: string,
   ): Promise<PaginatedGamesResponse> {
-    const params: { _page: number; _limit: number; categoryId?: string; title?: string } = {
+    const params: {
+      _page: number
+      _limit: number
+      categoryId?: string
+      title?: string
+      priceFilter?: string
+    } = {
       _page: page,
       _limit: limit,
     }
@@ -38,8 +45,11 @@ const apiService = {
     if (categoryId) {
       params.categoryId = categoryId
     }
-    if (title) {
+    if (title && title.trim() !== '') {
       params.title = title
+    }
+    if (priceFilter && priceFilter.trim() !== '') {
+      params.priceFilter = priceFilter
     }
 
     const response = await apiClient.get('/games', { params })
