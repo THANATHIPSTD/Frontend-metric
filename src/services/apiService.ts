@@ -46,6 +46,23 @@ export interface RegisterRequest {
   password: string
   image?: string[]
 }
+export interface OrderItemResponse {
+  game: Game
+  priceAtPurchase: number
+  platform: string
+  quantity: number
+  title: string
+  mainImageUrl: string
+}
+
+export interface UserOrder {
+  id: string
+  user: UserReporter
+  items: OrderItemResponse[]
+  orderDate: string
+  status: string
+  totalAmount: number
+}
 
 const apiService = {
   async fetchGames(
@@ -90,6 +107,11 @@ const apiService = {
     const response = await apiClient.get('/categories')
     return response.data
   },
+  async fetchGameById(id: string): Promise<Game> {
+    const response = await apiClient.get(`/games/${id}`)
+    return response.data
+  },
+
   async login(username: string, password: string): Promise<AuthResponse> {
     const response = await apiClient.post('/api/v1/auth/authenticate', {
       username: username,
@@ -103,6 +125,10 @@ const apiService = {
   },
   async logout(): Promise<void> {
     await apiClient.post('/api/v1/auth/logout')
+  },
+  async checkout(): Promise<UserOrder> {
+    const response = await apiClient.post('/orders/checkout')
+    return response.data
   },
 }
 

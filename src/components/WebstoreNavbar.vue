@@ -127,7 +127,7 @@ function toggleMenu() {
                 <img
                   v-if="authStore.user?.profileImage"
                   :src="authStore.user.profileImage"
-                  class="w-6 h-6 rounded-full mr-2 object-cover"
+                  class="w-10 h-10 rounded-full mr-5 object-cover"
                 />
                 Hi, {{ authStore.user?.firstname }}
               </button>
