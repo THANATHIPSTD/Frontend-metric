@@ -1,11 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterView } from 'vue-router'
+import WebstoreNavbar from '@/components/WebstoreNavbar.vue'
+import WebstoreFooter from '@/components/WebstoreFooter.vue'
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-</template>
+  <WebstoreNavbar />
 
-<style scoped></style>
+  <main class="pt-16">
+    <RouterView />
+  </main>
+
+  <WebstoreFooter />
+</template>
