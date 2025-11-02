@@ -24,7 +24,6 @@ async function handleLogin() {
       background-image: url('https://xapqrepwfmjcrtcsmqzh.supabase.co/storage/v1/object/public/sadboy/3975808.jpg');
     "
   >
-    <!-- Login Form Overlay -->
     <div class="w-full lg:w-1/2 flex items-center justify-center py-15 px-4">
       <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-3xl shadow-md">
         <h1 class="text-2xl font-bold text-center">DEKTEADGAME</h1>

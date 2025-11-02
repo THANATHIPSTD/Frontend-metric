@@ -5,11 +5,13 @@ import WebstoreFooter from '@/components/WebstoreFooter.vue'
 </script>
 
 <template>
-  <WebstoreNavbar />
+  <div class="min-h-screen flex flex-col">
+    <WebstoreNavbar />
 
-  <main class="pt-16">
-    <RouterView />
-  </main>
+    <main class="pt-16 flex-grow">
+      <RouterView />
+    </main>
 
-  <WebstoreFooter />
+    <WebstoreFooter class="mt-auto" />
+  </div>
 </template>

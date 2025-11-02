@@ -1,37 +1,29 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-// 1. 🔽 Import Category (เพื่อแสดงชื่อ) และ Game
-import apiService, { type Game, type Category } from '@/services/apiService'
+import apiService, { type Game, type CartItemDTO, type Category } from '@/services/apiService'
 import { useAuthStore } from '@/stores/authStore'
-// 2. 🔽 เรายังไม่ใช้ CartStore ในตอนนี้ 🔽
-// import { useCartStore } from '@/stores/cartStore'
+import { useCartStore } from '@/stores/cartStore'
 
 // --- Setup ---
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
-// const cartStore = useCartStore() // ◀️ ยังไม่เรียกใช้
+const cartStore = useCartStore()
 
-// --- State ---
 const game = ref<Game | null>(null)
-const categories = ref<Category[]>([]) // ◀️ State ใหม่สำหรับเก็บชื่อ Category
+const categories = ref<Category[]>([])
 const isLoading = ref(true)
 const selectedPlatform = ref<string>('')
-const isShaking = ref(false) // ◀️ (Animation จาก main.css [cite: src/assets/main.css])
+const isShaking = ref(false)
 
-// --- Data Fetching ---
 onMounted(async () => {
   const gameId = route.params.id as string
   try {
-    // 3. 🔽 อัปเดตการดึงข้อมูล 🔽
-    // ดึงข้อมูลเกม
     game.value = await apiService.fetchGameById(gameId)
 
-    // ดึงข้อมูล Category ทั้งหมด (เพื่อมาหาชื่อ)
     if (game.value?.categoryIds) {
       const allCategories = await apiService.fetchCategories()
-      // กรองเฉพาะ Category ที่เกมนี้มี
       categories.value = allCategories.filter((cat) => game.value?.categoryIds.includes(cat.id))
     }
   } catch (error) {
@@ -41,15 +33,10 @@ onMounted(async () => {
   }
 })
 
-// --- Computed ---
-/**
- * 4. 🔽 Computed ใหม่สำหรับแสดงชื่อ Category 🔽
- */
 const categoryNames = computed(() => {
   return categories.value.map((cat) => cat.name).join(', ')
 })
 
-// --- Functions ---
 function getEmbedUrl(url: string | undefined) {
   if (!url) return ''
   if (url.includes('watch?v=')) {
@@ -63,39 +50,25 @@ function setPlatform(platform: string) {
   isShaking.value = false
 }
 
-/**
- * 5. 🔽 อัปเดต handleAddToCart (เอา cartStore ออก) 🔽
- */
 function handleAddToCart() {
-  // 1. เช็คว่า Login หรือยัง (ใช้ authStore)
   if (!authStore.isLoggedIn) {
     router.push('/login')
     return
   }
-
-  // 2. เช็คว่าเลือก Platform หรือยัง (ใช้ .shake จาก [cite: src/assets/main.css])
   if (!selectedPlatform.value) {
     isShaking.value = true
     setTimeout(() => {
       isShaking.value = false
-    }, 500)
+    }, 1000)
     return
   }
-
-  // 3. ถ้าผ่านหมด: (ยังไม่เรียก cartStore)
   if (game.value) {
-    // ◀️ เราจะ Log ไว้ก่อน หรือ Alert
-    console.log('Attempting to add to cart (ยังไม่ได้เชื่อมต่อ):', {
+    const itemData: CartItemDTO = {
       gameId: game.value.id,
       platform: selectedPlatform.value,
       quantity: 1,
-    })
-
-    alert(`${game.value.title} (${selectedPlatform.value}) added to cart! (Placeholder)`)
-
-    // (บรรทัดนี้คือสิ่งที่เราจะทำ "หลังจากนี้")
-    // const itemData: CartItemDTO = { /* ... */ }
-    // cartStore.addItem(itemData)
+    }
+    cartStore.addItem(itemData)
   }
 }
 
@@ -123,12 +96,10 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
       </div>
     </div>
 
-    <!-- Content -->
     <div v-else-if="game" class="container mx-auto my-12 max-w-7xl">
       <div class="rounded-4xl overflow-hidden shadow-2xl bg-zinc-900">
-        <!-- Hero -->
         <div
-          class="h-[420px] md:h-[520px] bg-cover bg-center relative"
+          class="h-[600px] md:h-[700px] bg-cover bg-center relative"
           :style="{ backgroundImage: `url(${game.mainImageUrl})` }"
         >
           <div class="absolute inset-0 bg-linear-to-t from-zinc-900/90 via-zinc-900/10"></div>
@@ -254,10 +225,9 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
                 <p v-if="isShaking" class="text-red-400 text-xs mt-2">Please select a platform.</p>
               </div>
 
-              <!-- CTA -->
               <button
                 @click="handleAddToCart"
-                class="mt-auto w-full py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition duration-300"
+                class="mt-auto w-full py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition duration-300 transform hover:scale-105 active:scale-95"
               >
                 Add to Cart
               </button>

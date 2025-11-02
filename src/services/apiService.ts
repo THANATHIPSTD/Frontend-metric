@@ -64,6 +64,48 @@ export interface UserOrder {
   totalAmount: number
 }
 
+export interface CartItemDTO {
+  gameId: string
+  platform: string
+  quantity: number
+}
+
+export interface CartItemResponseDTO {
+  gameId: string
+  title: string
+  mainImageUrl: string
+  icongameUrl: string
+  price: number
+  promotionPrice?: number
+  platform: string
+  quantity: number
+}
+
+export interface CartDTO {
+  id: string
+  user: UserReporter
+  items: CartItemResponseDTO[]
+  totalPrice: number
+}
+
+export interface OrderItemResponse {
+  game: Game
+  priceAtPurchase: number
+  platform: string
+  quantity: number
+  title: string
+  mainImageUrl: string
+}
+
+export interface UserOrder {
+  id: string
+  user: UserReporter
+  items: OrderItemResponse[]
+  orderDate: string
+  status: string
+  totalAmount: number
+}
+
 const apiService = {
   async fetchGames(
     page: number = 1,
@@ -128,6 +170,22 @@ const apiService = {
   },
   async checkout(): Promise<UserOrder> {
     const response = await apiClient.post('/orders/checkout')
+    return response.data
+  },
+  async getMyCart(): Promise<CartDTO> {
+    const response = await apiClient.get('/cart/me')
+    return response.data
+  },
+
+  async addToCart(itemData: CartItemDTO): Promise<CartDTO> {
+    const response = await apiClient.post('/cart/add', itemData)
+    return response.data
+  },
+
+  async removeItem(gameId: string, platform: string): Promise<CartDTO> {
+    const response = await apiClient.delete('/cart/item', {
+      params: { gameId, platform },
+    })
     return response.data
   },
 }
