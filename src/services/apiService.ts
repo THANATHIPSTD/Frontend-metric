@@ -23,6 +23,30 @@ export interface PaginatedGamesResponse {
   data: Game[]
 }
 
+export interface UserReporter {
+  id: string
+  firstname: string
+  lastname: string
+  username: string
+  email: string
+  profileImage: string
+  roles: string[]
+}
+
+export interface AuthResponse {
+  access_token: string
+  refresh_token: string
+  user: UserReporter
+}
+
+export interface RegisterRequest {
+  firstname: string
+  lastname: string
+  email: string
+  password: string
+  image?: string[]
+}
+
 const apiService = {
   async fetchGames(
     page: number = 1,
@@ -65,6 +89,20 @@ const apiService = {
   async fetchCategories(): Promise<Category[]> {
     const response = await apiClient.get('/categories')
     return response.data
+  },
+  async login(username: string, password: string): Promise<AuthResponse> {
+    const response = await apiClient.post('/api/v1/auth/authenticate', {
+      username: username,
+      password: password,
+    })
+    return response.data
+  },
+  async register(data: RegisterRequest): Promise<AuthResponse> {
+    const response = await apiClient.post('/api/v1/auth/register', data)
+    return response.data
+  },
+  async logout(): Promise<void> {
+    await apiClient.post('/api/v1/auth/logout')
   },
 }
 

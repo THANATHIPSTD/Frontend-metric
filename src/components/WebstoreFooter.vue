@@ -31,7 +31,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <footer class="bg-white text-gray-800 pt-16 pb-12 mt-30 border-t border-zinc-300">
+  <footer class="bg-white text-gray-800 pt-13 pb-12 border-t border-zinc-300">
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div class="md:col-span-6 lg:col-span-3">
@@ -160,17 +160,6 @@ onMounted(() => {
               </a>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="border-t border-zinc-300 pt-8 mt-12">
-        <div class="flex flex-col md:flex-row justify-between items-center text-sm">
-          <div class="text-gray-500 space-x-4 mb-4 md:mb-0">
-            <router-link to="/privacy" class="hover:text-blue-600">Privacy Policy</router-link>
-            <span>·</span>
-            <router-link to="/terms" class="hover:text-blue-600">Terms of Service</router-link>
-          </div>
-          <p class="text-gray-500">© 2025 Game Shop. All rights reserved.</p>
         </div>
       </div>
     </div>

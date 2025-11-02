@@ -84,7 +84,7 @@ onMounted(fetchData)
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto p-4 md:p-8 my-12 bg-white rounded-2xl shadow-lg">
+  <div class="max-w-7xl mx-auto p-4 md:p-8 my-12 bg-white rounded-3xl shadow-lg">
     <h1 v-if="!isLoading" class="text-3xl font-bold mb-6">{{ pageTitle }}</h1>
     <div v-else class="mb-6 h-8 bg-gray-200 rounded-xl animate-pulse w-1/3"></div>
 
