@@ -16,7 +16,7 @@ const bgClass = computed(() => {
     'product-detail': 'from-slate-50 via-white to-slate-100',
     cart: 'from-amber-50 via-white to-yellow-50',
     thankyou: 'from-emerald-50 via-white to-green-50',
-    profile: 'from-pink-100 via-white to-fuchsia-100',
+    profile: 'from-sky-50 via-white to-indigo-50',
     history: 'from-gray-100 via-white to-slate-200',
     'backoffice-layout': 'from-zinc-50 via-white to-zinc-100',
     'blackoffice-layout': 'from-zinc-50 via-white to-zinc-100',
