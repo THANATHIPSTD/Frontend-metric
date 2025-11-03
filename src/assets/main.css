@@ -2,8 +2,9 @@
 @import 'mapbox-gl/dist/mapbox-gl.css';
 
 :root {
-  --bg-start: #efefef;
-  --bg-end: #efefef;
+  /* --bg-start: #efefef;
+  --bg-end: #efefef; */
+  --bg-image: url('https://xapqrepwfmjcrtcsmqzh.supabase.co/storage/v1/object/public/sadboy/rm183-kul-21.jpg');
 }
 
 html,
