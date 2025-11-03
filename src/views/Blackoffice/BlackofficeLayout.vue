@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import BackofficeSidebar from '@/components/BackofficeSidebar.vue'
+import BackofficeSidebar from '@/components/Backoffice/BackofficeSidebar.vue'
 </script>
 
 <template>
@@ -7,7 +7,7 @@ import BackofficeSidebar from '@/components/BackofficeSidebar.vue'
     <BackofficeSidebar />
 
     <main class="flex-1 p-10">
-      <div class="bg-zinc-100 rounded-xl shadow-xl min-h-[calc(100vh-64px)]">
+      <div class="bg-zinc-100 rounded-3xl shadow-xl min-h-[calc(100vh-64px)]">
         <RouterView />
       </div>
     </main>

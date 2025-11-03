@@ -231,7 +231,7 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
 
           <div class="xl:col-span-4">
             <div
-              class="bg-zinc-900/10 backdrop-blur-md p-6 rounded-2xl shadow-lg sticky top-24 mt-7 flex flex-col gap-5 xl:max-w-[420px] xl:ml-auto"
+              class="bg-zinc-900/10 backdrop-blur-md p-6 rounded-2xl shadow-lg sticky top-24 mt-15 flex flex-col gap-5 xl:max-w-[420px] xl:ml-auto"
             >
               <div class="flex items-center gap-4">
                 <img

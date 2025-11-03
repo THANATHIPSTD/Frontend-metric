@@ -122,8 +122,7 @@ onBeforeUnmount(stop)
             </div>
           </transition>
 
-          <!-- bottom dots -->
-          <div class="absolute bottom-8 left-0 right-0 flex justify-center gap-2">
+          <div class="hidden md:flex absolute bottom-8 left-0 right-0 justify-center gap-2">
             <button
               v-for="(g, idx) in limitedGames"
               :key="g.id"
@@ -176,17 +175,13 @@ onBeforeUnmount(stop)
             @click="goTo(idx)"
           >
             <span
-              class="absolute left-0 top-0 h-full w-1 transition-all"
-              :class="
-                idx === activeIndex
-                  ? 'bg-linear-to-b from-cyan-400 to-blue-500'
-                  : 'bg-transparent group-hover:bg-white/50'
-              "
+              class="absolute left-0 top-0 h-full w-3 transition-all"
+              :class="idx === activeIndex ? 'bg-black ' : 'bg-transparent group-hover:bg-white/50'"
             />
             <img
               :src="g.iconGameUrl"
               :alt="g.title"
-              class="w-11 h-11 rounded-lg object-cover ring-1 ring-white/20"
+              class="w-15 h-15 rounded-lg object-cover ml-10 ring-1 ring-white/20"
             />
             <span class="text-sm font-medium truncate">{{ g.title }}</span>
           </button>

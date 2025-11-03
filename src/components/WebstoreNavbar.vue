@@ -33,7 +33,7 @@ function toggleMenu() {
       <div class="flex justify-between items-center h-16">
         <div class="shrink-0">
           <RouterLink to="/" @click="closeMenus">
-            <img class="h-8 w-auto" src="@/assets/logo.png" alt="DEKTEADGAME Logo" />
+            <img class="h-8 w-auto" src="@/assets/logo.png" />
           </RouterLink>
         </div>
 

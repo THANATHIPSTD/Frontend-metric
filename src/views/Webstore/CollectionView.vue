@@ -24,9 +24,6 @@ onMounted(async () => {
         <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900">
           Collections
         </h1>
-        <p class="mt-3 text-neutral-500">
-          Discover curated groups of games in a clean, minimal layout.
-        </p>
       </header>
 
       <!-- Loading skeleton -->

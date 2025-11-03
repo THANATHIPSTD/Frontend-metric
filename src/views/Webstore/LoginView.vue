@@ -37,7 +37,7 @@ async function handleLogin() {
 
         <form @submit.prevent="handleLogin" class="space-y-6">
           <div>
-            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+            <label for="username" class="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="text"
               v-model="username"
