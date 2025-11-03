@@ -204,6 +204,19 @@ const apiService = {
     const response = await apiClient.get('/users/me')
     return response.data
   },
+
+    async updateMyProfile(data: {
+    firstname?: string
+    lastname?: string
+    email?: string
+    profileImage?: string
+    newPassword?: string
+    currentPassword?: string
+  }) {
+    const response = await apiClient.put('/users/me', data)
+    return response.data
+  },
+
 }
 
 export default apiService

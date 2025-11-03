@@ -1,32 +1,22 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import apiService, { type UserReporter } from '@/services/apiService'
 
 const user = ref<UserReporter | null>(null)
 const isLoading = ref(true)
 const isEditing = ref(false)
 const isSaving = ref(false)
-const errorMsg = ref<string | null>(null)
-
-// ฟิลด์แก้ไขรูป
 const newImageUrl = ref('')
-
-// วันที่สวย ๆ
-const todayStr = computed(() =>
-  new Date().toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }),
-)
+const newPassword = ref('')
+const errorMsg = ref<string | null>(null)
 
 onMounted(async () => {
   try {
-    const me = await apiService.getCurrentUser()
-    user.value = me
-  } catch (e: any) {
-    errorMsg.value = e?.response?.status === 401 ? 'Please login to view your profile.' : 'Failed to load profile.'
+    const res = await apiService.getCurrentUser()
+    user.value = res
+  } catch (err: any) {
+    console.error(err)
+    errorMsg.value = 'Failed to load user profile.'
   } finally {
     isLoading.value = false
   }
@@ -40,19 +30,40 @@ function enableEdit() {
 function cancelEdit() {
   isEditing.value = false
   newImageUrl.value = user.value?.profileImage || ''
+  newPassword.value = ''
 }
 
 async function saveProfile() {
-  // ยังไม่ยิง API จริง — ทำ UI/UX ก่อน
-  isSaving.value = true
-  setTimeout(() => {
-    // จำลองเซฟเสร็จ → ปิดโหมดแก้ไข + อัพเดตรูปในหน้าจอ
-    if (user.value) user.value.profileImage = newImageUrl.value || user.value.profileImage
-    isSaving.value = false
+  if (!user.value) return
+
+  try {
+    isSaving.value = true
+
+    const payload = {
+      firstname: user.value.firstname,
+      lastname: user.value.lastname,
+      email: user.value.email,
+      profileImage: newImageUrl.value || user.value.profileImage,
+    } as any
+
+    // ถ้ามี password ใหม่
+    if (newPassword.value && newPassword.value.trim() !== '') {
+      payload.newPassword = newPassword.value
+    }
+
+    const updatedUser = await apiService.updateMyProfile(payload)
+    user.value = updatedUser // อัปเดตข้อมูลในหน้าให้ทันที
     isEditing.value = false
-  }, 600)
+    newPassword.value = ''
+  } catch (err) {
+    console.error(err)
+    alert('Failed to update profile')
+  } finally {
+    isSaving.value = false
+  }
 }
 </script>
+
 
 <template>
   <div class="min-h-[80vh] px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
@@ -229,6 +240,7 @@ async function saveProfile() {
             <div class="space-y-1">
               <label class="text-sm text-zinc-600">New Password</label>
               <input
+                v-model="newPassword"
                 :readonly="!isEditing"
                 type="password"
                 placeholder="Enter new password"
