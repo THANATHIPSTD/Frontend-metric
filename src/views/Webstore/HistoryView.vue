@@ -152,7 +152,7 @@ function formatDateTime(dateStr: string) {
               <strong>Date:</strong> {{ formatDateTime(order.orderDate) }}
             </p>
             <p class="text-sm text-zinc-500">
-              <strong>Status:</strong>
+              <strong>Status: </strong>
               <span
                 :class="
                   order.status === 'completed'
@@ -211,12 +211,6 @@ function formatDateTime(dateStr: string) {
               TOTAL: ฿{{ calcTotal(order.totalAmount).toFixed(2) }}
             </p>
           </div>
-        </div>
-
-        <div class="text-right mt-6">
-          <button class="bg-zinc-800 text-white px-4 py-2 rounded-md text-sm hover:bg-zinc-700">
-            🖨️ Print
-          </button>
         </div>
       </div>
     </div>

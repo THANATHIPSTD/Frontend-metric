@@ -202,7 +202,7 @@ onMounted(fetchCategories)
             <div class="flex flex-wrap gap-2 mt-3">
               <button
                 @click="handleEdit(category)"
-                class="flex-1 min-w-[100px] text-black hover:bg-blue-50 border border-black font-medium py-2 px-3 rounded-lg inline-flex items-center justify-center gap-1"
+                class="flex-1 min-w-[100px] bg-black text-white hover:bg-zinc-700 font-medium py-2 px-3 rounded-lg inline-flex items-center justify-center gap-1 transition"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -216,7 +216,7 @@ onMounted(fetchCategories)
               </button>
               <button
                 @click="handleDelete(category.id, category.name)"
-                class="flex-1 min-w-[100px] text-red-600 hover:bg-red-50 border border-red-600 font-medium py-2 px-3 rounded-lg inline-flex items-center justify-center gap-1"
+                class="flex-1 min-w-[100px] bg-red-600 text-white hover:bg-red-700 font-medium py-2 px-3 rounded-lg inline-flex items-center justify-center gap-1 transition"
               >
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
