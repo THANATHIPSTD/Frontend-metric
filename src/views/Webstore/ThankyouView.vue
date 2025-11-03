@@ -65,7 +65,7 @@ onMounted(async () => {
     <div class="bg-gray-100 flex items-center justify-center">
       <div
         v-if="cartStore.latestOrder && authStore.user"
-        class="confirmation-card bg-white p-8 md:p-16 rounded-2xl shadow-xl max-w-2xl mt-15 mb-20 w-full text-center relative overflow-hidden"
+        class="confirmation-card bg-white p-8 md:p-16 rounded-4xl shadow-xl max-w-2xl mt-15 mb-20 w-full text-center relative overflow-hidden"
       >
         <div
           class="w-24 h-24 bg-green-500 rounded-full mx-auto flex items-center justify-center mb-6"

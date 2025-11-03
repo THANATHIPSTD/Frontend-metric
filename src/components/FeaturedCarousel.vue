@@ -144,9 +144,7 @@ onBeforeUnmount(stop)
       </div>
     </div>
 
-    <!-- RIGHT: Glass stack OR Skeleton -->
     <div class="md:col-span-1">
-      <!-- Skeleton (right) -->
       <div v-if="loading" class="hidden md:grid grid-rows-5 gap-3 h-[54vw] max-h-[520px]">
         <div
           v-for="n in 5"
@@ -210,7 +208,7 @@ onBeforeUnmount(stop)
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: rgb(244 244 245); /* zinc-100 */
+  background-color: rgb(244 244 245);
 }
 .skeleton::after {
   content: '';

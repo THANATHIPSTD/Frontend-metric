@@ -338,7 +338,9 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
                   </svg>
                   Adding...
                 </span>
-                <span v-else>Add to Cart</span>
+                <span v-else>{{
+                  authStore.isLoggedIn ? 'Add to Cart' : 'Login to add to cart'
+                }}</span>
               </button>
             </div>
           </div>
