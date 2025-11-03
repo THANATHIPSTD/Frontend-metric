@@ -90,15 +90,15 @@ const router = createRouter({
       beforeEnter: requireAuth,
     },
     {
-    path: '/profile',
-    name: 'Profile',
-    component: () => import('../views/Webstore/ProfileView.vue'),
-    meta: { requiresAuth: true }
+      path: '/profile',
+      name: 'Profile',
+      component: () => import('../views/Webstore/ProfileView.vue'),
+      meta: { requiresAuth: true },
     },
 
     {
       path: '/history',
-      name: 'History',
+      name: 'history',
       component: () => import('../views/Webstore/HistoryView.vue'),
       meta: { requiresAuth: true },
     },

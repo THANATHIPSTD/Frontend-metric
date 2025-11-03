@@ -82,19 +82,17 @@ function toggleMenu() {
           </RouterLink>
 
           <RouterLink v-if="authStore.isAdmin" to="/blackoffice" class="px-3 py-2 ...">
-            <RouterLink v-if="authStore.isAdmin" to="/blackoffice" class="px-3 py-2 ...">
-              <span class="flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M10.5 1.5H3.75A2.25 2.25 0 001.5 3.75v16.5A2.25 2.25 0 003.75 22.5h16.5a2.25 2.25 0 002.25-2.25V13.5m-20.25-9h6m-6 4.5h6M10.5 1.5l6 6m6-6v6"
-                  />
-                </svg>
-                Backoffice
-              </span>
-            </RouterLink>
+            <span class="flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10.5 1.5H3.75A2.25 2.25 0 001.5 3.75v16.5A2.25 2.25 0 003.75 22.5h16.5a2.25 2.25 0 002.25-2.25V13.5m-20.25-9h6m-6 4.5h6M10.5 1.5l6 6m6-6v6"
+                />
+              </svg>
+              Backoffice
+            </span>
           </RouterLink>
         </div>
 
