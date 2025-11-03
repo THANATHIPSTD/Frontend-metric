@@ -46,14 +46,6 @@ export interface RegisterRequest {
   password: string
   image?: string[]
 }
-export interface OrderItemResponse {
-  game: Game
-  priceAtPurchase: number
-  platform: string
-  quantity: number
-  title: string
-  mainImageUrl: string
-}
 
 export interface UserOrder {
   id: string
@@ -121,6 +113,9 @@ export interface HomePageResponse {
   newReleaseGames: GameCard[]
 }
 
+
+
+
 const apiService = {
   async fetchGames(
     page: number = 1,
@@ -168,6 +163,7 @@ const apiService = {
     const response = await apiClient.get(`/games/${id}`)
     return response.data
   },
+
   async fetchHomePageData(): Promise<HomePageResponse> {
     const response = await apiClient.get('/homePage')
     return response.data
@@ -207,6 +203,11 @@ const apiService = {
     })
     return response.data
   },
+
+  async fetchOrderHistory(): Promise<UserOrder[]> {
+    const response = await apiClient.get('/orders/history')
+    return response.data
+  }
 }
 
 export default apiService

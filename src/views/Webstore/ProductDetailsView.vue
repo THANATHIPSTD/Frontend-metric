@@ -15,16 +15,20 @@ const game = ref<Game | null>(null)
 const categories = ref<Category[]>([])
 const isLoading = ref(true)
 const selectedPlatform = ref<string>('')
+
+// UI states
 const isShaking = ref(false)
+const adding = ref(false)               // ปุ่ม Add to Cart กำลังทำงาน
+const showSuccess = ref(false)          // toast สำเร็จ
+const showError = ref<null | string>(null) // toast error ข้อความ
 
 onMounted(async () => {
   const gameId = route.params.id as string
   try {
     game.value = await apiService.fetchGameById(gameId)
-
-    if (game.value?.categoryIds) {
+    if (game.value?.categoryIds?.length) {
       const allCategories = await apiService.fetchCategories()
-      categories.value = allCategories.filter((cat) => game.value?.categoryIds.includes(cat.id))
+      categories.value = allCategories.filter((cat) => game.value!.categoryIds.includes(cat.id))
     }
   } catch (error) {
     console.error('Failed to fetch game details:', error)
@@ -33,16 +37,17 @@ onMounted(async () => {
   }
 })
 
-const categoryNames = computed(() => {
-  return categories.value.map((cat) => cat.name).join(', ')
-})
+const categoryNames = computed(() => categories.value.map((c) => c.name).join(', '))
 
-function getEmbedUrl(url: string | undefined) {
+function getEmbedUrl(url?: string) {
   if (!url) return ''
-  if (url.includes('watch?v=')) {
-    return url.replace('watch?v=', 'embed/') + '?autoplay=1&mute=1'
+  // รองรับทั้ง youtube watch และลิงก์ทั่วไป
+  try {
+    if (url.includes('watch?v=')) return url.replace('watch?v=', 'embed/') + '?autoplay=1&mute=1'
+    return url + (url.includes('?') ? '&' : '?') + 'autoplay=1&mute=1'
+  } catch {
+    return ''
   }
-  return url + '?autoplay=1&mute=1'
 }
 
 function setPlatform(platform: string) {
@@ -50,32 +55,87 @@ function setPlatform(platform: string) {
   isShaking.value = false
 }
 
-function handleAddToCart() {
+async function handleAddToCart() {
+  // ต้องล็อกอินก่อน
   if (!authStore.isLoggedIn) {
     router.push('/login')
     return
   }
+  // ต้องเลือกแพลตฟอร์มก่อน
   if (!selectedPlatform.value) {
     isShaking.value = true
-    setTimeout(() => {
-      isShaking.value = false
-    }, 1000)
+    setTimeout(() => (isShaking.value = false), 900)
     return
   }
-  if (game.value) {
-    const itemData: CartItemDTO = {
-      gameId: game.value.id,
-      platform: selectedPlatform.value,
-      quantity: 1,
+  if (!game.value) return
+
+  const itemData: CartItemDTO = {
+    gameId: game.value.id,
+    platform: selectedPlatform.value,
+    quantity: 1,
+  }
+
+  adding.value = true
+  showError.value = null
+  try {
+    // ✅ สำคัญ: รอให้ add เสร็จจริง
+    await cartStore.addItem(itemData)
+
+    // โชว์ toast สำเร็จ
+    showSuccess.value = true
+    setTimeout(() => (showSuccess.value = false), 2500)
+  } catch (err: any) {
+    // กรณี token หมดอายุ/401
+    if (err?.response?.status === 401) {
+      showError.value = 'Please login to continue.'
+    } else if (err?.response?.data) {
+      showError.value = String(err.response.data)
+    } else {
+      showError.value = err?.message || 'Failed to add to cart.'
     }
-    cartStore.addItem(itemData)
+    // ซ่อน error หลัง 3 วิ
+    setTimeout(() => (showError.value = null), 3000)
+  } finally {
+    adding.value = false
   }
 }
 
 const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
 </script>
+
 <template>
   <div class="pt-1">
+    <!-- ✅ Toast: Success -->
+    <transition name="fade">
+      <div
+        v-if="showSuccess"
+        class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50"
+        role="status" aria-live="polite"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        <span>Added to cart successfully!</span>
+      </div>
+    </transition>
+
+    <!-- ❌ Toast: Error -->
+    <transition name="fade">
+      <div
+        v-if="showError"
+        class="fixed bottom-6 right-6 bg-red-500 text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-3 z-50"
+        role="alert" aria-live="assertive"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v2m0 4h.01M4.93 4.93l14.14 14.14M12 2a10 10 0 100 20 10 10 0 000-20z" />
+        </svg>
+        <span>{{ showError }}</span>
+      </div>
+    </transition>
+
     <!-- Loading -->
     <div v-if="isLoading" class="container mx-auto my-12 max-w-7xl p-4">
       <div class="rounded-2xl overflow-hidden shadow-2xl bg-zinc-900">
@@ -106,11 +166,9 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
           <div class="absolute bottom-0 left-0 p-6 md:p-12 z-10">
             <h1 class="text-3xl md:text-5xl font-bold text-white shadow-lg">{{ game.title }}</h1>
             <p class="text-lg text-gray-200 max-w-2xl mt-2 hidden md:block">
-              {{
-                game.description.length > 100
-                  ? game.description.substring(0, 100) + '...'
-                  : game.description
-              }}
+              {{ (game.description || '').length > 100
+                  ? (game.description || '').substring(0, 100) + '...'
+                  : (game.description || '') }}
             </p>
           </div>
         </div>
@@ -155,21 +213,12 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
 
               <!-- Price -->
               <div>
-                <div
-                  v-if="game.promotionPrice && game.promotionPrice > 0"
-                  class="flex items-baseline gap-2"
-                >
-                  <span class="text-lg text-gray-400 line-through">{{
-                    formatCurrency(game.price)
-                  }}</span>
-                  <span class="text-2xl font-bold text-green-400">{{
-                    formatCurrency(game.promotionPrice)
-                  }}</span>
+                <div v-if="game.promotionPrice && game.promotionPrice > 0" class="flex items-baseline gap-2">
+                  <span class="text-lg text-gray-400 line-through">{{ formatCurrency(game.price) }}</span>
+                  <span class="text-2xl font-bold text-green-400">{{ formatCurrency(game.promotionPrice) }}</span>
                 </div>
                 <div v-else>
-                  <span class="text-2xl font-bold text-white">{{
-                    formatCurrency(game.price)
-                  }}</span>
+                  <span class="text-2xl font-bold text-white">{{ formatCurrency(game.price) }}</span>
                 </div>
               </div>
 
@@ -179,44 +228,28 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
                 <div class="grid grid-cols-2 gap-2" :class="{ shake: isShaking }">
                   <button
                     @click="setPlatform('PC')"
-                    :class="
-                      selectedPlatform === 'PC'
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-600 hover:bg-gray-700'
-                    "
+                    :class="selectedPlatform === 'PC' ? 'bg-blue-600 border-blue-600' : 'border-gray-600 hover:bg-gray-700'"
                     class="px-4 py-2 text-sm rounded-full border text-white transition"
                   >
                     PC
                   </button>
                   <button
                     @click="setPlatform('PS5')"
-                    :class="
-                      selectedPlatform === 'PS5'
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-600 hover:bg-gray-700'
-                    "
+                    :class="selectedPlatform === 'PS5' ? 'bg-blue-600 border-blue-600' : 'border-gray-600 hover:bg-gray-700'"
                     class="px-4 py-2 text-sm rounded-full border text-white transition"
                   >
                     PS5
                   </button>
                   <button
                     @click="setPlatform('Xbox')"
-                    :class="
-                      selectedPlatform === 'Xbox'
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-600 hover:bg-gray-700'
-                    "
+                    :class="selectedPlatform === 'Xbox' ? 'bg-blue-600 border-blue-600' : 'border-gray-600 hover:bg-gray-700'"
                     class="px-4 py-2 text-sm rounded-full border text-white transition"
                   >
                     Xbox
                   </button>
                   <button
                     @click="setPlatform('PS4')"
-                    :class="
-                      selectedPlatform === 'PS4'
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-600 hover:bg-gray-700'
-                    "
+                    :class="selectedPlatform === 'PS4' ? 'bg-blue-600 border-blue-600' : 'border-gray-600 hover:bg-gray-700'"
                     class="px-4 py-2 text-sm rounded-full border text-white transition"
                   >
                     PS4
@@ -227,9 +260,20 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
 
               <button
                 @click="handleAddToCart"
-                class="mt-auto w-full py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition duration-300 transform hover:scale-105 active:scale-95"
+                :disabled="adding"
+                class="mt-auto w-full py-3 rounded-full text-white font-bold transition duration-300 transform hover:scale-105 active:scale-95
+                       disabled:opacity-70 disabled:cursor-not-allowed
+                       bg-blue-600 hover:bg-blue-700"
               >
-                Add to Cart
+                <span v-if="adding" class="inline-flex items-center gap-2">
+                  <svg class="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                  </svg>
+                  Adding...
+                </span>
+                <span v-else>Add to Cart</span>
               </button>
             </div>
           </div>
@@ -241,12 +285,25 @@ const formatCurrency = (value: number) => `฿${value.toFixed(2)}`
     <div v-else class="text-center py-32">
       <h1 class="text-4xl font-bold">404 - Game Not Found</h1>
       <p class="text-gray-600 mt-4">Sorry, we couldn't find the game you were looking for.</p>
-      <router-link
-        to="/browse"
-        class="mt-6 inline-block px-6 py-3 bg-black text-white rounded-full"
-      >
+      <router-link to="/browse" class="mt-6 inline-block px-6 py-3 bg-black text-white rounded-full">
         Back to Browse
       </router-link>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* toast animation */
+.fade-enter-active, .fade-leave-active { transition: opacity .3s, transform .25s; }
+.fade-enter-from, .fade-leave-to { opacity: 0; transform: translateY(16px); }
+
+/* platform not selected shake */
+.shake { animation: shake .35s linear 0s 1; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+</style>

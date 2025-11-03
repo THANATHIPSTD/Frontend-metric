@@ -1,15 +1,20 @@
 <script setup lang="ts">
-import type { GameCard } from '@/services/apiService' // หรือ type ที่คุณใช้จริง
+import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
+import type { GameCard } from '@/services/apiService'
 
 const props = defineProps<{
   games: GameCard[]
   title?: string
   loading?: boolean
+  // เผื่ออยากเปลี่ยน path ภายหลัง เช่น /games/:id
+  detailBasePath?: string    // default: '/product'
 }>()
 
 function toBaht(n?: number | null) {
   return typeof n === 'number' ? `฿${n}` : ''
 }
+const basePath = computed(() => props.detailBasePath ?? '/product')
 </script>
 
 <template>
@@ -31,10 +36,14 @@ function toBaht(n?: number | null) {
 
     <!-- Real list -->
     <div v-else class="flex gap-4 overflow-x-auto pb-2">
-      <div
+      <RouterLink
         v-for="g in games"
         :key="g.id"
-        class="min-w-[180px] w-[180px] rounded-2xl border border-zinc-200 hover:border-zinc-400 transition bg-white"
+        :to="`product/${g.id}`"
+        class="min-w-[180px] w-[180px] rounded-2xl border border-zinc-200 bg-white
+               hover:border-zinc-400 hover:shadow-sm focus:shadow-sm focus:outline-none
+               transition"
+        :aria-label="`View details for ${g.title}`"
       >
         <img :src="g.iconGameUrl" :alt="g.title" class="w-full h-28 object-cover rounded-t-2xl" />
         <div class="p-3">
@@ -49,13 +58,12 @@ function toBaht(n?: number | null) {
             </template>
           </div>
         </div>
-      </div>
+      </RouterLink>
     </div>
   </section>
 </template>
 
 <style scoped>
-/* shimmer เหมือนใน FeaturedCarousel */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -66,12 +74,7 @@ function toBaht(n?: number | null) {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background-image: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.6) 50%,
-    rgba(255,255,255,0) 100%
-  );
+  background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);
   animation: shimmer 1.2s infinite;
 }
 @keyframes shimmer { 100% { transform: translateX(100%); } }

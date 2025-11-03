@@ -79,6 +79,13 @@ const router = createRouter({
       beforeEnter: requireAuth,
     },
     {
+      path: '/history',
+      name: 'History',
+      component: () => import('../views/Webstore/HistoryView.vue'),
+      meta: { requiresAuth: true }
+    },
+
+    {
       path: '/blackoffice',
       name: 'blackoffice-layout',
       component: () => import('../views/Blackoffice/BlackofficeLayout.vue'),
