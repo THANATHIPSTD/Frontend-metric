@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import apiService, { type UserReporter } from '@/services/apiService'
+import { useAuthStore } from '@/stores/authStore'
+const authStore = useAuthStore()
+
 
 const user = ref<UserReporter | null>(null)
 const isLoading = ref(true)
@@ -35,33 +38,36 @@ function cancelEdit() {
 
 async function saveProfile() {
   if (!user.value) return
-
+  isSaving.value = true
   try {
-    isSaving.value = true
-
-    const payload = {
+    const payload: any = {
       firstname: user.value.firstname,
       lastname: user.value.lastname,
       email: user.value.email,
       profileImage: newImageUrl.value || user.value.profileImage,
-    } as any
-
-    // ถ้ามี password ใหม่
-    if (newPassword.value && newPassword.value.trim() !== '') {
-      payload.newPassword = newPassword.value
     }
+    if (newPassword.value?.trim()) payload.newPassword = newPassword.value
 
     const updatedUser = await apiService.updateMyProfile(payload)
-    user.value = updatedUser // อัปเดตข้อมูลในหน้าให้ทันที
+
+    // อัปเดตหน้า Profile (local) ให้แสดงผลทันที
+    user.value = updatedUser
+
+    // 🔥 สำคัญ: อัปเดต Pinia เพื่อให้ navbar เด้งตาม
+    authStore.setUser(updatedUser)
+    // หรือใช้ refreshUser เพื่อดึงล่าสุดจากเซิร์ฟเวอร์:
+    // await authStore.refreshUser()
+
     isEditing.value = false
     newPassword.value = ''
-  } catch (err) {
-    console.error(err)
+  } catch (e) {
+    console.error(e)
     alert('Failed to update profile')
   } finally {
     isSaving.value = false
   }
 }
+
 </script>
 
 

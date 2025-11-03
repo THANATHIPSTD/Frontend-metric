@@ -55,6 +55,8 @@ export const useAuthStore = defineStore('auth', () => {
 
       _setAuth(response)
 
+      await refreshUser()
+
       router.push('/')
     } catch (error) {
       console.error('Login Failed:', error)
@@ -68,6 +70,9 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await apiService.register(payload)
 
       _setAuth(response)
+
+
+      await refreshUser()
 
       router.push('/')
     } catch (error) {
@@ -88,6 +93,16 @@ export const useAuthStore = defineStore('auth', () => {
     router.push('/login')
   }
 
+  function setUser(u: UserReporter) {
+    user.value = u
+    localStorage.setItem('user', JSON.stringify(u))
+  }
+
+  async function refreshUser() {
+    const me = await apiService.getCurrentUser()
+    setUser(me)
+  }
+
   return {
     user,
     token,
@@ -96,5 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     register,
     logout,
+    setUser,
+    refreshUser,
   }
 })
