@@ -89,7 +89,7 @@ export interface OrderItemResponse {
   mainImageUrl: string
 }
 
-export interface GameCard  {
+export interface GameCard {
   id: string
   title: string
   price: number
@@ -103,9 +103,6 @@ export interface HomePageResponse {
   featuredGames: GameCard[]
   newReleaseGames: GameCard[]
 }
-
-
-
 
 const apiService = {
   async fetchGames(
@@ -205,9 +202,10 @@ const apiService = {
     return response.data
   },
 
-    async updateMyProfile(data: {
+  async updateMyProfile(data: {
     firstname?: string
     lastname?: string
+    username?: string
     email?: string
     profileImage?: string
     newPassword?: string
@@ -216,7 +214,6 @@ const apiService = {
     const response = await apiClient.put('/users/me', data)
     return response.data
   },
-
 }
 
 export default apiService
