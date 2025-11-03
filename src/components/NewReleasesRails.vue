@@ -7,8 +7,7 @@ const props = defineProps<{
   games: GameCard[]
   title?: string
   loading?: boolean
-  // เผื่ออยากเปลี่ยน path ภายหลัง เช่น /games/:id
-  detailBasePath?: string    // default: '/product'
+  detailBasePath?: string
 }>()
 
 function toBaht(n?: number | null) {
@@ -25,7 +24,11 @@ const basePath = computed(() => props.detailBasePath ?? '/product')
 
     <!-- Skeleton rail -->
     <div v-if="loading" class="flex gap-4 overflow-x-hidden pb-2">
-      <div v-for="n in 8" :key="n" class="min-w-[180px] w-[180px] rounded-2xl border border-zinc-200 bg-white">
+      <div
+        v-for="n in 8"
+        :key="n"
+        class="min-w-[180px] w-[180px] rounded-2xl border border-zinc-200 bg-white"
+      >
         <div class="w-full h-28 rounded-t-2xl skeleton"></div>
         <div class="p-3">
           <div class="h-4 w-3/4 rounded skeleton mb-2"></div>
@@ -34,21 +37,22 @@ const basePath = computed(() => props.detailBasePath ?? '/product')
       </div>
     </div>
 
-    <!-- Real list -->
     <div v-else class="flex gap-4 overflow-x-auto pb-2">
       <RouterLink
         v-for="g in games"
         :key="g.id"
-        :to="`product/${g.id}`"
-        class="min-w-[180px] w-[180px] rounded-2xl border border-zinc-200 bg-white
-               hover:border-zinc-400 hover:shadow-sm focus:shadow-sm focus:outline-none
-               transition"
+        :to="`${basePath}/${g.id}`"
+        class="min-w-[180px] w-[180px] rounded-2xl border border-zinc-200 bg-white hover:border-zinc-400 hover:shadow-sm focus:shadow-sm focus:outline-none transition flex flex-col"
         :aria-label="`View details for ${g.title}`"
       >
-        <img :src="g.iconGameUrl" :alt="g.title" class="w-full h-28 object-cover rounded-t-2xl" />
-        <div class="p-3">
-          <h6 class="font-medium truncate" :title="g.title">{{ g.title }}</h6>
-          <div class="mt-1">
+        <img
+          :src="g.iconGameUrl"
+          :alt="g.title"
+          class="w-full h-45 object-cover rounded-t-2xl shrink-0"
+        />
+        <div class="p-3 flex flex-col grow">
+          <h6 class="font-medium truncate mb-2" :title="g.title">{{ g.title }}</h6>
+          <div class="mt-auto">
             <template v-if="g.promotionPrice">
               <div class="text-xs line-through opacity-70">{{ toBaht(g.price) }}</div>
               <div class="text-lg font-bold">{{ toBaht(g.promotionPrice) }}</div>
@@ -70,12 +74,21 @@ const basePath = computed(() => props.detailBasePath ?? '/product')
   background-color: rgb(244 244 245);
 }
 .skeleton::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.6) 50%, rgba(255,255,255,0) 100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
   animation: shimmer 1.2s infinite;
 }
-@keyframes shimmer { 100% { transform: translateX(100%); } }
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
 </style>

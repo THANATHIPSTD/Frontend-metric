@@ -18,29 +18,36 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="p-4 md:p-12 bg-white rounded-3xl shadow-md my-12 max-w-7xl mx-auto">
-    <h1 class="text-4xl font-bold text-center mb-16">COLLECTION</h1>
+  <div class="min-h-screen bg-neutral-50">
+    <section class="max-w-7xl mx-auto px-4 md:px-8 py-14">
+      <header class="mb-10 text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-neutral-900">
+          Collections
+        </h1>
+        <p class="mt-3 text-neutral-500">
+          Discover curated groups of games in a clean, minimal layout.
+        </p>
+      </header>
 
-    <div v-if="isLoading" class="flex flex-wrap justify-center gap-6">
-      <div v-for="n in 5" :key="n" class="w-full sm:w-72 md:w-90">
+      <!-- Loading skeleton -->
+      <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
         <div
-          class="relative block aspect-4/3 rounded-2xl overflow-hidden shadow-lg animate-pulse bg-gray-100"
+          v-for="n in 6"
+          :key="n"
+          class="rounded-3xl bg-white border border-neutral-200 shadow-sm overflow-hidden"
         >
-          <div class="absolute inset-0 bg-gray-200"></div>
-
-          <div></div>
-
-          <div class="absolute bottom-0 left-0 p-4 md:p-6">
-            <div class="h-8 md:h-10 bg-gray-300 rounded w-3/4"></div>
+          <div class="aspect-video w-full bg-neutral-100 animate-pulse"></div>
+          <div class="p-6">
+            <div class="h-7 w-2/3 bg-neutral-200 rounded animate-pulse"></div>
+            <div class="mt-3 h-4 w-1/2 bg-neutral-200 rounded animate-pulse"></div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="flex flex-wrap justify-center gap-6 mb-10">
-      <div v-for="cat in categories" :key="cat.id" class="w-full sm:w-72 md:w-90">
-        <CollectionCard :category="cat" />
+      <!-- Grid -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+        <CollectionCard v-for="cat in categories" :key="cat.id" :category="cat" />
       </div>
-    </div>
+    </section>
   </div>
 </template>

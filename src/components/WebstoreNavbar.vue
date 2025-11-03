@@ -28,7 +28,7 @@ function toggleMenu() {
 </script>
 
 <template>
-  <nav class="bg-white shadow-md fixed top-0 left-0 w-full z-50">
+  <nav class="bg-white/40 backdrop-blur-md shadow-md fixed top-0 left-0 w-full z-50">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="shrink-0">
@@ -151,7 +151,14 @@ function toggleMenu() {
                   :src="authStore.user.profileImage"
                   class="w-10 h-10 rounded-full mr-5 object-cover"
                 />
-                Hi, {{ authStore.user?.firstname }}
+                <div class="flex flex-col items-start">
+                  <span class="text-sm font-semibold"
+                    >{{ authStore.user?.firstname }} {{ authStore.user?.lastname }}</span
+                  >
+                  <span class="text-xs text-gray-500">{{
+                    authStore.isAdmin ? 'Admin' : 'User'
+                  }}</span>
+                </div>
               </button>
 
               <div
