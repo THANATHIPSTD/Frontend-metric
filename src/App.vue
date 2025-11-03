@@ -8,7 +8,7 @@ import WebstoreFooter from '@/components/WebstoreFooter.vue'
   <div class="min-h-screen flex flex-col">
     <WebstoreNavbar />
 
-    <main class="pt-16 flex-grow">
+    <main class="pt-16 grow">
       <RouterView />
     </main>
 

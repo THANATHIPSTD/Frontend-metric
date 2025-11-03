@@ -79,6 +79,7 @@ export const useCartStore = defineStore('cart', () => {
   return {
     cart,
     latestOrder,
+    isCheckingOut,
     itemCount,
     totalPrice,
     totalPriceWithFee,
