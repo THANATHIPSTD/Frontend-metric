@@ -106,6 +106,21 @@ export interface UserOrder {
   totalAmount: number
 }
 
+export interface GameCard  {
+  id: string
+  title: string
+  price: number
+  promotionPrice?: number | null
+  mainImageUrl: string
+  iconGameUrl: string
+  description?: string | null
+}
+
+export interface HomePageResponse {
+  featuredGames: GameCard[]
+  newReleaseGames: GameCard[]
+}
+
 const apiService = {
   async fetchGames(
     page: number = 1,
@@ -151,6 +166,10 @@ const apiService = {
   },
   async fetchGameById(id: string): Promise<Game> {
     const response = await apiClient.get(`/games/${id}`)
+    return response.data
+  },
+  async fetchHomePageData(): Promise<HomePageResponse> {
+    const response = await apiClient.get('/homePage')
     return response.data
   },
 
