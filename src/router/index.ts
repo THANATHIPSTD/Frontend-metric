@@ -12,6 +12,17 @@ const requireAuth = (to: any, from: any, next: any) => {
   }
 }
 
+const requireAdmin = (to: any, from: any, next: any) => {
+  const authStore = useAuthStore()
+  if (authStore.isLoggedIn && authStore.isAdmin) {
+    next()
+  } else if (authStore.isLoggedIn) {
+    next({ name: 'home' })
+  } else {
+    next({ name: 'login' })
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -82,7 +93,7 @@ const router = createRouter({
       path: '/history',
       name: 'History',
       component: () => import('../views/Webstore/HistoryView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
 
     {
@@ -90,6 +101,49 @@ const router = createRouter({
       name: 'blackoffice-layout',
       component: () => import('../views/Blackoffice/BlackofficeLayout.vue'),
       beforeEnter: requireAuth,
+    },
+    {
+      path: '/backoffice',
+      name: 'backoffice-layout',
+      component: () => import('../views/Blackoffice/BlackofficeLayout.vue'),
+      beforeEnter: requireAdmin,
+      children: [
+        {
+          path: '',
+          name: 'backoffice-default',
+          redirect: { name: 'backoffice-categories' },
+        },
+        {
+          path: 'categories',
+          name: 'backoffice-categories',
+          component: () => import('../views/Blackoffice/CategoryManagementView.vue'),
+        },
+        {
+          path: 'products',
+          name: 'backoffice-products',
+          component: () => import('../views/Blackoffice/ProductManagementView.vue'),
+        },
+        {
+          path: 'homepage-manage',
+          name: 'backoffice-homepage',
+          component: () => import('../views/Blackoffice/HomepageManagementView.vue'),
+        },
+        {
+          path: 'newrelease-manage',
+          name: 'backoffice-newrelease',
+          component: () => import('../views/Blackoffice/NewReleaseManagementView.vue'),
+        },
+        {
+          path: 'users',
+          name: 'backoffice-users',
+          component: () => import('../views/Blackoffice/UserManagementView.vue'),
+        },
+        {
+          path: 'orders',
+          name: 'backoffice-orders',
+          component: () => import('../views/Blackoffice/OrderHistoryAdminView.vue'),
+        },
+      ],
     },
   ],
 })

@@ -31,7 +31,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <footer class="bg-white/30 backdrop-blur-md text-gray-800 pt-13 pb-12 border-t border-zinc-300">
+  <footer class="bg-zinc-100 backdrop-blur-md text-gray-800 pt-13 pb-12 border-t border-zinc-300">
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
         <div class="md:col-span-6 lg:col-span-3">
