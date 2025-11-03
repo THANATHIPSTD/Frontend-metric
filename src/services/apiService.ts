@@ -89,15 +89,6 @@ export interface OrderItemResponse {
   mainImageUrl: string
 }
 
-export interface UserOrder {
-  id: string
-  user: UserReporter
-  items: OrderItemResponse[]
-  orderDate: string
-  status: string
-  totalAmount: number
-}
-
 export interface GameCard  {
   id: string
   title: string
@@ -207,7 +198,25 @@ const apiService = {
   async fetchOrderHistory(): Promise<UserOrder[]> {
     const response = await apiClient.get('/orders/history')
     return response.data
-  }
+  },
+
+  async getCurrentUser(): Promise<UserReporter> {
+    const response = await apiClient.get('/users/me')
+    return response.data
+  },
+
+    async updateMyProfile(data: {
+    firstname?: string
+    lastname?: string
+    email?: string
+    profileImage?: string
+    newPassword?: string
+    currentPassword?: string
+  }) {
+    const response = await apiClient.put('/users/me', data)
+    return response.data
+  },
+
 }
 
 export default apiService
