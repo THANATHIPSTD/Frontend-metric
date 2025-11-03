@@ -25,14 +25,9 @@ onMounted(async () => {
 
 <template>
   <div class="container mx-auto px-4 py-6">
-    <div v-if="loading" class="text-center py-12 text-zinc-500">Loading...</div>
-    <div v-else-if="errorMsg" class="text-center py-12 text-red-500">{{ errorMsg }}</div>
-    <div v-else class="space-y-8">
-      <!-- Featured -->
-      <FeaturedCarousel :games="featured.slice(0,5)" :intervalMs="4000" />
-
-      <!-- New Releases -->
-      <NewReleasesRail :games="newReleases" title="New Releases" />
+    <div class="space-y-8">
+      <FeaturedCarousel :games="featured.slice(0,5)" :loading="loading" :intervalMs="4000" />
+      <NewReleasesRail :games="newReleases" :loading="loading" title="New Releases" />
     </div>
   </div>
 </template>
