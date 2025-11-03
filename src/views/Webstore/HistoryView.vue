@@ -9,8 +9,8 @@ const errorMsg = ref<string | null>(null)
 onMounted(async () => {
   try {
     orders.value = await apiService.fetchOrderHistory()
-  } catch (err: any) {
-    errorMsg.value = err?.message || 'Failed to load order history'
+  } catch (err: unknown) {
+    errorMsg.value = err instanceof Error ? err.message : 'Failed to load order history'
   } finally {
     isLoading.value = false
   }
@@ -24,9 +24,6 @@ function calcTotal(amount: number) {
 }
 
 function formatDateTime(dateStr: string) {
-  // สตริงของคุณไม่มี timezone ("2025-11-03T16:10:15.614")
-  // JS จะตีความเป็นเวลา "เครื่องผู้ใช้" อยู่แล้ว
-  // ถ้าอยากล็อกให้เป็นเวลาประเทศไทย ให้ใส่ timeZone: 'Asia/Bangkok'
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',
@@ -35,20 +32,21 @@ function formatDateTime(dateStr: string) {
     minute: '2-digit',
     second: '2-digit',
     hour12: false,
-    timeZone: 'Asia/Bangkok', // ถ้าอยากใช้เวลาตามเครื่อง ให้ลบบรรทัดนี้ออก
+    timeZone: 'Asia/Bangkok',
   }).format(new Date(dateStr))
 }
-
 </script>
 
 <template>
   <div class="max-w-5xl mx-auto p-6">
     <h1 class="text-3xl font-bold mb-8 text-center">Order History</h1>
 
-    <!-- ⚡ Skeleton while loading -->
     <div v-if="isLoading" class="space-y-8">
-      <div v-for="n in 2" :key="n" class="bg-white rounded-2xl shadow-md p-6 border border-zinc-100">
-        <!-- header skeleton -->
+      <div
+        v-for="n in 2"
+        :key="n"
+        class="bg-white rounded-2xl shadow-md p-6 border border-zinc-100"
+      >
         <div class="flex flex-col md:flex-row justify-between border-b border-zinc-200 pb-4 mb-4">
           <div class="space-y-2">
             <div class="h-6 w-48 rounded skeleton"></div>
@@ -62,7 +60,6 @@ function formatDateTime(dateStr: string) {
           </div>
         </div>
 
-        <!-- table skeleton -->
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm border-t border-b border-zinc-200">
             <thead class="bg-zinc-100">
@@ -80,17 +77,26 @@ function formatDateTime(dateStr: string) {
                   <div class="h-4 w-48 rounded skeleton mb-2"></div>
                   <div class="h-3 w-64 rounded skeleton"></div>
                 </td>
-                <td class="text-center p-3"><div class="h-4 w-16 mx-auto rounded skeleton"></div></td>
-                <td class="text-center p-3"><div class="h-4 w-20 mx-auto rounded skeleton"></div></td>
-                <td class="text-center p-3"><div class="h-4 w-10 mx-auto rounded skeleton"></div></td>
-                <td class="text-right p-3"><div class="h-4 w-20 ml-auto rounded skeleton"></div></td>
+                <td class="text-center p-3">
+                  <div class="h-4 w-16 mx-auto rounded skeleton"></div>
+                </td>
+                <td class="text-center p-3">
+                  <div class="h-4 w-20 mx-auto rounded skeleton"></div>
+                </td>
+                <td class="text-center p-3">
+                  <div class="h-4 w-10 mx-auto rounded skeleton"></div>
+                </td>
+                <td class="text-right p-3">
+                  <div class="h-4 w-20 ml-auto rounded skeleton"></div>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- totals skeleton -->
-        <div class="flex flex-col md:flex-row justify-between items-end mt-6 border-t border-zinc-200 pt-4">
+        <div
+          class="flex flex-col md:flex-row justify-between items-end mt-6 border-t border-zinc-200 pt-4"
+        >
           <div class="space-y-2">
             <div class="h-4 w-40 rounded skeleton"></div>
             <div class="h-4 w-44 rounded skeleton"></div>
@@ -102,19 +108,37 @@ function formatDateTime(dateStr: string) {
       </div>
     </div>
 
-    <!-- ❗ error -->
     <div v-else-if="errorMsg" class="text-center text-red-500 py-20">
       {{ errorMsg }}
     </div>
 
-    <!-- ✅ real content -->
+    <div v-else-if="orders.length === 0" class="text-center py-20">
+      <div class="text-zinc-400 mb-4">
+        <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+      </div>
+      <h2 class="text-2xl font-semibold text-zinc-700 mb-2">No Order History</h2>
+      <p class="text-zinc-500 mb-6">You haven't placed any orders yet.</p>
+      <router-link
+        to="/"
+        class="inline-block bg-zinc-800 text-white px-6 py-3 rounded-md hover:bg-zinc-700 transition"
+      >
+        Go to Homepage
+      </router-link>
+    </div>
+
     <div v-else>
       <div
-        v-for="(order, idx) in orders"
+        v-for="order in orders"
         :key="order.id"
         class="bg-white rounded-2xl shadow-md p-6 mb-10 border border-zinc-100"
       >
-        <!-- header -->
         <div class="flex flex-col md:flex-row justify-between border-b border-zinc-200 pb-4 mb-4">
           <div>
             <h2 class="font-semibold text-xl">DEKTEADGAME, Inc</h2>
@@ -124,10 +148,18 @@ function formatDateTime(dateStr: string) {
             </p>
           </div>
           <div class="text-right mt-4 md:mt-0">
-            <p class="text-sm text-zinc-500"><strong>Date:</strong> {{ formatDateTime(order.orderDate) }}</p>
+            <p class="text-sm text-zinc-500">
+              <strong>Date:</strong> {{ formatDateTime(order.orderDate) }}
+            </p>
             <p class="text-sm text-zinc-500">
               <strong>Status:</strong>
-              <span :class="order.status === 'completed' ? 'text-green-600 font-medium' : 'text-yellow-600 font-medium'">
+              <span
+                :class="
+                  order.status === 'completed'
+                    ? 'text-green-600 font-medium'
+                    : 'text-yellow-600 font-medium'
+                "
+              >
                 {{ order.status }}
               </span>
             </p>
@@ -138,7 +170,6 @@ function formatDateTime(dateStr: string) {
           </div>
         </div>
 
-        <!-- table -->
         <div class="overflow-x-auto">
           <table class="min-w-full text-sm border-t border-b border-zinc-200">
             <thead class="bg-zinc-100 text-zinc-700">
@@ -153,20 +184,24 @@ function formatDateTime(dateStr: string) {
             <tbody>
               <tr v-for="(item, j) in order.items" :key="j" class="border-t border-zinc-100">
                 <td class="p-3">
-                  <span class="font-medium text-zinc-900">{{ item.game.title }}</span><br />
+                  <span class="font-medium text-zinc-900">{{ item.game.title }}</span
+                  ><br />
                   <span class="text-xs text-zinc-500">{{ item.game.description }}</span>
                 </td>
                 <td class="text-center p-3">฿{{ item.priceAtPurchase.toFixed(2) }}</td>
                 <td class="text-center p-3">{{ item.platform }}</td>
                 <td class="text-center p-3">{{ item.quantity }}</td>
-                <td class="text-right p-3 font-medium">฿{{ (item.priceAtPurchase * item.quantity).toFixed(2) }}</td>
+                <td class="text-right p-3 font-medium">
+                  ฿{{ (item.priceAtPurchase * item.quantity).toFixed(2) }}
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
 
-        <!-- totals -->
-        <div class="flex flex-col md:flex-row justify-between items-end mt-6 border-t border-zinc-200 pt-4">
+        <div
+          class="flex flex-col md:flex-row justify-between items-end mt-6 border-t border-zinc-200 pt-4"
+        >
           <div class="text-zinc-500 text-sm">
             Subtotal: ฿{{ order.totalAmount.toFixed(2) }}<br />
             Paypal Fee (7%): ฿{{ calcPaypalFee(order.totalAmount).toFixed(2) }}
@@ -178,9 +213,8 @@ function formatDateTime(dateStr: string) {
           </div>
         </div>
 
-        <!-- Print -->
         <div class="text-right mt-6">
-          <button class="bg-zinc-800 text-white px-4 py-2 rounded-md text-sm hover:bg-zinc-700" @click="window.print()">
+          <button class="bg-zinc-800 text-white px-4 py-2 rounded-md text-sm hover:bg-zinc-700">
             🖨️ Print
           </button>
         </div>
@@ -191,28 +225,35 @@ function formatDateTime(dateStr: string) {
 
 <style scoped>
 @media print {
-  button { display: none; }
-  .max-w-5xl { box-shadow: none !important; }
+  button {
+    display: none;
+  }
+  .max-w-5xl {
+    box-shadow: none !important;
+  }
 }
 
-/* shimmer */
 .skeleton {
   position: relative;
   overflow: hidden;
-  background-color: rgb(244 244 245); /* zinc-100 */
+  background-color: rgb(244 244 245);
 }
 .skeleton::after {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
   background-image: linear-gradient(
     90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.6) 50%,
-    rgba(255,255,255,0) 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
   );
   animation: shimmer 1.2s infinite;
 }
-@keyframes shimmer { 100% { transform: translateX(100%); } }
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
 </style>

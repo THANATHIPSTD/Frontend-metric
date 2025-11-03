@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
-import * as yup from 'yup'
+import { ref, onMounted, computed } from 'vue'
 import apiService, { type UserReporter } from '@/services/apiService'
 import { useAuthStore } from '@/stores/authStore'
-
 const authStore = useAuthStore()
 
 const user = ref<UserReporter | null>(null)
@@ -13,41 +11,21 @@ const isSaving = ref(false)
 const newImageUrl = ref('')
 const newPassword = ref('')
 const errorMsg = ref<string | null>(null)
-const errors = ref<Record<string, string>>({}) // สำหรับเก็บข้อความ error แต่ละ field
 
-// ✅ สร้าง Schema ตรวจสอบข้อมูล
-const schema = yup.object({
-  firstname: yup.string().trim().required('First name is required'),
-  lastname: yup.string().trim().required('Last name is required'),
-  username: yup.string().trim().required('Username is required'),
-  email: yup.string().trim().email('Invalid email').required('Email is required'),
+const todayStr = computed(() => {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 })
-
-// ตรวจสอบ validation ทุกครั้งที่ user เปลี่ยนค่า
-watch(
-  () => user.value,
-  async (newUser) => {
-    if (isEditing.value && newUser) {
-      try {
-        await schema.validate(newUser, { abortEarly: false })
-        errors.value = {}
-      } catch (err: any) {
-        const fieldErrors: Record<string, string> = {}
-        err.inner.forEach((e: any) => {
-          if (e.path) fieldErrors[e.path] = e.message
-        })
-        errors.value = fieldErrors
-      }
-    }
-  },
-  { deep: true },
-)
 
 onMounted(async () => {
   try {
     const res = await apiService.getCurrentUser()
     user.value = res
-  } catch (err: any) {
+  } catch (err) {
     console.error(err)
     errorMsg.value = 'Failed to load user profile.'
   } finally {
@@ -64,38 +42,27 @@ function cancelEdit() {
   isEditing.value = false
   newImageUrl.value = user.value?.profileImage || ''
   newPassword.value = ''
-  errors.value = {}
 }
 
 async function saveProfile() {
   if (!user.value) return
-
-  // ✅ ตรวจสอบ validation ก่อน save
-  try {
-    await schema.validate(user.value, { abortEarly: false })
-  } catch (err: any) {
-    const fieldErrors: Record<string, string> = {}
-    err.inner.forEach((e: any) => {
-      if (e.path) fieldErrors[e.path] = e.message
-    })
-    errors.value = fieldErrors
-    return
-  }
-
   isSaving.value = true
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: any = {
       firstname: user.value.firstname,
       lastname: user.value.lastname,
-      username: user.value.username,
       email: user.value.email,
       profileImage: newImageUrl.value || user.value.profileImage,
     }
     if (newPassword.value?.trim()) payload.newPassword = newPassword.value
 
     const updatedUser = await apiService.updateMyProfile(payload)
+
     user.value = updatedUser
+
     authStore.setUser(updatedUser)
+
     isEditing.value = false
     newPassword.value = ''
   } catch (e) {
@@ -105,11 +72,6 @@ async function saveProfile() {
     isSaving.value = false
   }
 }
-
-// ✅ คำนวณว่า Save ได้หรือไม่
-const isSaveDisabled = computed(() => {
-  return isSaving.value || Object.keys(errors.value).length > 0
-})
 </script>
 
 <template>
@@ -117,12 +79,12 @@ const isSaveDisabled = computed(() => {
     <div class="max-w-7xl mx-auto">
       <!-- Header gradient -->
       <div
-        class="rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-[1px] shadow-lg"
+        class="rounded-2xl bg-linear-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-px shadow-lg"
       >
         <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/70 backdrop-blur">
           <div class="flex items-center gap-3 px-6 py-5">
             <div
-              class="h-10 w-10 rounded-xl bg-white/70 dark:bg-white/10 flex items-center justify-center shadow"
+              class="h-10 w-10 rounded-xl bg-white/70 text-white dark:bg-white/10 flex items-center justify-center shadow"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -136,7 +98,7 @@ const isSaveDisabled = computed(() => {
               </svg>
             </div>
             <div class="flex-1">
-              <h2 class="text-xl sm:text-2xl font-semibold tracking-tight">
+              <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-white">
                 {{ user ? `Welcome, ${user.firstname} ${user.lastname}` : 'Profile' }}
               </h2>
               <p class="text-sm text-zinc-500">{{ todayStr }}</p>
@@ -276,8 +238,35 @@ const isSaveDisabled = computed(() => {
               </span>
             </div>
 
-            <!-- Email -->
-            <div class="grid sm:grid-cols-1 gap-4">
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div class="space-y-1">
+                <label class="text-sm text-zinc-600">First Name</label>
+                <input
+                  v-model="user.firstname"
+                  :readonly="!isEditing"
+                  class="w-full rounded-lg border p-2 transition"
+                  :class="
+                    isEditing
+                      ? 'border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+                      : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
+                  "
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-sm text-zinc-600">Last Name</label>
+                <input
+                  v-model="user.lastname"
+                  :readonly="!isEditing"
+                  class="w-full rounded-lg border p-2 transition"
+                  :class="
+                    isEditing
+                      ? 'border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
+                      : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
+                  "
+                />
+              </div>
+
               <div class="space-y-1">
                 <label class="text-sm text-zinc-600">Email</label>
                 <input
@@ -287,74 +276,12 @@ const isSaveDisabled = computed(() => {
                   class="w-full rounded-lg border p-2 transition"
                   :class="
                     isEditing
-                      ? 'border-zinc-300 focus:ring-2 focus:ring-indigo-500'
+                      ? 'border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
                       : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
                   "
                 />
-                <p v-if="errors.email" class="text-red-500 text-xs mt-1">{{ errors.email }}</p>
-              </div>
-            </div>
-
-            <!-- แถวแรก: firstname+lastname -->
-            <div class="grid sm:grid-cols-2 gap-4 mt-4">
-              <!-- First Name -->
-              <div class="space-y-1">
-                <label class="text-sm text-zinc-600">First Name</label>
-                <input
-                  v-model="user.firstname"
-                  :readonly="!isEditing"
-                  class="w-full rounded-lg border p-2 transition"
-                  :class="
-                    isEditing
-                      ? 'border-zinc-300 focus:ring-2 focus:ring-indigo-500'
-                      : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
-                  "
-                />
-                <p v-if="errors.firstname" class="text-red-500 text-xs mt-1">
-                  {{ errors.firstname }}
-                </p>
               </div>
 
-              <!-- Last Name -->
-              <div class="space-y-1">
-                <label class="text-sm text-zinc-600">Last Name</label>
-                <input
-                  v-model="user.lastname"
-                  :readonly="!isEditing"
-                  class="w-full rounded-lg border p-2 transition"
-                  :class="
-                    isEditing
-                      ? 'border-zinc-300 focus:ring-2 focus:ring-indigo-500'
-                      : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
-                  "
-                />
-                <p v-if="errors.lastname" class="text-red-500 text-xs mt-1">
-                  {{ errors.lastname }}
-                </p>
-              </div>
-            </div>
-
-            <!-- แถวที่สอง: Username + Password -->
-            <div class="grid sm:grid-cols-2 gap-4 mt-4">
-              <!-- Username -->
-              <div class="space-y-1">
-                <label class="text-sm text-zinc-600">Username</label>
-                <input
-                  v-model="user.username"
-                  :readonly="!isEditing"
-                  class="w-full rounded-lg border p-2 transition"
-                  :class="
-                    isEditing
-                      ? 'border-zinc-300 focus:ring-2 focus:ring-indigo-500'
-                      : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
-                  "
-                />
-                <p v-if="errors.username" class="text-red-500 text-xs mt-1">
-                  {{ errors.username }}
-                </p>
-              </div>
-
-              <!-- New Password -->
               <div class="space-y-1">
                 <label class="text-sm text-zinc-600">New Password</label>
                 <input
@@ -365,10 +292,22 @@ const isSaveDisabled = computed(() => {
                   class="w-full rounded-lg border p-2 transition"
                   :class="
                     isEditing
-                      ? 'border-zinc-300 focus:ring-2 focus:ring-indigo-500'
+                      ? 'border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500'
                       : 'border-transparent bg-zinc-50 text-zinc-700 cursor-default'
                   "
                 />
+              </div>
+
+              <div class="space-y-1 sm:col-span-2">
+                <label class="text-sm text-zinc-600">Roles</label>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    v-for="r in user.roles"
+                    :key="r"
+                    class="rounded-full px-3 py-1 text-xs font-medium border bg-zinc-50 text-zinc-700"
+                    >{{ r }}</span
+                  >
+                </div>
               </div>
             </div>
 
@@ -390,8 +329,8 @@ const isSaveDisabled = computed(() => {
                 </button>
                 <button
                   @click="saveProfile"
-                  :disabled="isSaveDisabled"
-                  class="w-1/2 rounded-lg px-4 py-2 bg-black text-white font-medium shadow hover:shadow-md active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  :disabled="isSaving"
+                  class="w-1/2 rounded-lg px-4 py-2 bg-black text-white font-medium shadow hover:shadow-md active:scale-[0.98] transition disabled:opacity-60"
                 >
                   {{ isSaving ? 'Saving…' : 'Save' }}
                 </button>
