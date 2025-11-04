@@ -30,12 +30,11 @@ async function handleRegister() {
 
 <template>
   <div
-    class="fixed inset-0 -z-10 bg-cover bg-center"
+    class="flex items-center justify-center min-h-screen bg-cover bg-center py-20"
     style="
       background-image: url('https://xapqrepwfmjcrtcsmqzh.supabase.co/storage/v1/object/public/sadboy/3975808.jpg');
     "
-  ></div>
-  <div class="flex items-center justify-center min-h-screen py-20">
+  >
     <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-3xl shadow-md">
       <h1 class="text-2xl font-bold text-center">DEKTEADGAME</h1>
 
