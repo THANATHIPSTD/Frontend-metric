@@ -211,7 +211,7 @@ onMounted(fetchGames)
         </h3>
 
         <div class="max-h-[70vh] overflow-y-auto border border-zinc-300 rounded-lg shadow-inner">
-          <ul v-if="selectedGames.length > 0" class="divide-y divide-zinc-200">
+          <ul v-if="selectedGames.length > 0" class="divide-y divide-zinc-200 rounded-4xl">
             <li
               v-for="(game, index) in selectedGames"
               :key="game.id"

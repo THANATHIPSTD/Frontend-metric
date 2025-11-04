@@ -78,9 +78,7 @@ async function saveProfile() {
   <div class="min-h-[80vh] px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header gradient -->
-      <div
-        class="rounded-2xl bg-linear-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-px shadow-lg"
-      >
+      <div class="rounded-2xl bg-linear-to-r from-zinc-800 via-zinc-700 to-zinc-900 p-px shadow-lg">
         <div class="rounded-2xl bg-white/80 dark:bg-zinc-900/70 backdrop-blur">
           <div class="flex items-center gap-3 px-6 py-5">
             <div
@@ -199,7 +197,7 @@ async function saveProfile() {
                 <button
                   v-if="!isEditing"
                   @click="enableEdit"
-                  class="w-full rounded-lg px-4 py-2 bg-indigo-600 text-white font-medium shadow hover:shadow-md hover:bg-indigo-700 active:scale-[0.98] transition"
+                  class="w-full rounded-lg px-4 py-2 bg-black text-white font-medium shadow hover:shadow-md hover:bg-zinc-800 active:scale-[0.98] transition"
                 >
                   Edit Profile
                 </button>

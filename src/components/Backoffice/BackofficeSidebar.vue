@@ -4,15 +4,13 @@ import { ref, watch } from 'vue'
 
 const isOpen = ref(false)
 
-// เมื่อเปิดเมนู ป้องกันสกอร์ลทั้งหน้า
 watch(isOpen, (v) => {
   document.documentElement.classList.toggle('overflow-hidden', v)
 })
 </script>
 
 <template>
-  <div>
-    <!-- FAB: ปุ่มเมนูลอยมุมล่างซ้าย (ไม่ทับ navbar) -->
+  <div class="shadow-lg">
     <button
       v-if="!isOpen"
       @click="isOpen = true"
@@ -29,14 +27,12 @@ watch(isOpen, (v) => {
       </svg>
     </button>
 
-    <!-- Backdrop: สีดำทึบข้างนอก -->
     <div
       v-if="isOpen"
       class="md:hidden fixed inset-0 bg-black/70 z-40"
       @click="isOpen = false"
     ></div>
 
-    <!-- Drawer -->
     <aside
       :class="[
         'bg-zinc-100 text-black shadow-2xl p-4 flex flex-col space-y-2',
@@ -48,7 +44,6 @@ watch(isOpen, (v) => {
       role="dialog"
       aria-modal="true"
     >
-      <!-- Header (mobile) -->
       <div class="flex items-center justify-between mb-3 md:hidden">
         <h2 class="text-lg font-semibold">Admin Panel</h2>
         <button
@@ -67,10 +62,8 @@ watch(isOpen, (v) => {
         </button>
       </div>
 
-      <!-- Header (desktop) -->
       <h2 class="hidden md:block text-xl font-bold mb-4 text-center">Admin Panel</h2>
 
-      <!-- Links -->
       <RouterLink
         :to="{ name: 'backoffice-categories' }"
         class="flex items-center p-3 rounded-lg hover:bg-zinc-200 transition"
